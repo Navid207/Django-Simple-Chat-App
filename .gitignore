@@ -7,7 +7,8 @@ __pycache__
 media
 
 # Migrations #
-**/migrations/*initial.py
+**/migrations/**
+*!/migrations/__init__.py
 
 # Backup files # 
 *.bak 
