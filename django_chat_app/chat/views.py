@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .models import Chat, Message
 
@@ -7,7 +8,6 @@ from .models import Chat, Message
 
 def index(request):
     if request.method == 'POST':
-        print('Received data: '  + request.POST['textmessage'])
         chat = Chat.objects.get(id=1)
         Message.objects.create(
             chat = chat,
@@ -21,7 +21,6 @@ def index(request):
 def login_view(request):
     redirectRout = request.GET.get('next')
     if request.method == 'POST':
-        print('Received data: '  + request.POST['username'] + request.POST['password'] )
         user = authenticate(username= request.POST['username'], password= request.POST['password'])
         if user:
             login(request, user)
@@ -30,3 +29,17 @@ def login_view(request):
             return render(request, 'auth/login.html', {'wrongUser': True, 'redirectRout': redirectRout})                
         
     return render(request, 'auth/login.html', {'redirectRout': redirectRout})
+
+def signin_view(request):
+   redirectRout = request.GET.get('next')
+   if request.method == 'POST':
+    name = request.POST['username']
+    mail = request.POST['mail']
+    password = request.POST['password']
+    user = User.objects.create_user(name, mail, password)
+    user.last_name = "Lennon"
+    user.save()
+    if user:
+        login(request, user)
+        return redirect('/chat/')
+   return render(request, 'signin/signin.html', {'redirectRout': redirectRout}) 

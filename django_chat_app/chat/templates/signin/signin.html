@@ -1,25 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
 
-
-<form action="/login/" method="post">
+<h1>Sign In</h1>
+<form action="/signin/" method="post">
     {% csrf_token %}
     <input type="hidden" name="redirectRout" value="{{ redirectRout }}">
+
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input name="username" class="mdl-textfield__input" type="text" id="username">
         <label class="mdl-textfield__label" for="username">Username</label>
     </div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input name="mail" class="mdl-textfield__input" type="email" id="mail">
+        <label class="mdl-textfield__label" for="mail">E-Mail</label>
+    </div>
+
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input name="password" class="mdl-textfield__input" type="password" id="password">
         <label class="mdl-textfield__label" for="password">Password</label>
     </div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input name="password2" class="mdl-textfield__input" type="password" id="password2">
+        <label class="mdl-textfield__label" for="password2">Repeat Password</label>
+    </div>
+
     <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Login
+        Sign In
     </button>
 </form>
 
-
-<p>If you are new, please sign in <a href="/signin/">here</a></p>
 
 {% if wrongUser %}
 <p>Wrong username or password</p>
