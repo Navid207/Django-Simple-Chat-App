@@ -1,30 +1,133 @@
+<!--  -->
 {% extends "base.html" %}
+<!--  -->
 {% block content %}
 
-
+<!--  -->
 {% if request.user.is_authenticated %}
-{% for message in messages %}
-<div>
-    <span class="light-text">[{{ message.created_at }}]</span> {{ message.author.first_name }} : <i>{{
-        message.text }}</i>
+<!--  -->
+<div id="messageArea">
+  {% for message in messages %}
+  <div>
+    <span class="light-text">[{{ message.created_at }}]</span>
+    <a>{{ message.author.first_name }}</a> : <i>{{ message.text }}</i>
+  </div>
+  {% endfor %}
 </div>
-{% endfor %}
 
-<form action="/chat/" method="post">
-    {% csrf_token %}
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" name="textmessage" type="text" id="sample3">
-        <label class="mdl-textfield__label" for="sample3">Text...</label>
-    </div>
+<script>
+  async function sendMessage() {
+    let fd = new FormData();
+    fd.append("textmessage", messageField.value);
+    fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+    showNewMsg();
+    try {
+      let response = await fetch("/chat/", {
+        method: "POST",
+        body: fd,
+      });
+      let json = await response.json();
+      renderResonsMsg(JSON.parse(json));
+    } catch (e) {
+      console.error("An error occured", e);
+    }
+  }
 
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-        Button
-    </button>
+  function showNewMsg() {
+    messageArea.innerHTML += getNewMsg(
+      messageField.value,
+      "{{ request.user.first_name }}",
+      false
+    );
+    messageField.value = "";
+    messageFieldCont.classList.remove("is-dirty");
+  }
+
+  function renderResonsMsg(jsonObj) {
+    document.getElementById("postedMsg").remove();
+    messageArea.innerHTML += getNewMsg(
+      jsonObj.fields.text,
+      "{{ request.user.first_name }}",
+      true
+    );
+  }
+
+  // function addNewMsg(wait) {
+  //   if (!wait) {
+  //     let msg = postedMsg.querySelector("i.light-text").innerHTML;
+  //     messageArea.innerHTML += getNewMsg(
+  //       msg,
+  //       "{{ request.user.first_name }}",
+  //       !wait
+  //     );
+  //   } else {
+  //     messageArea.innerHTML += getNewMsg(
+  //       messageField.value,
+  //       "{{ request.user.first_name }}",
+  //       !wait
+  //     );
+  //     messageField.value = "";
+  //     messageFieldCont.classList.remove("is-dirty");
+  //   }
+  // }
+
+  function getNewMsg(msg, user, posted) {
+    let retVal;
+    retVal = !posted ? '<div id="postedMsg">' : "<div>";
+    retVal += `<span class="light-text">[${getTimeStemp()}]</span>
+        <a>${user}</a> : <i>${msg}</i></div>`;
+    return retVal;
+  }
+
+  function getTimeStemp() {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    let d = new Date();
+    let month = months[d.getMonth()];
+    let day = d.getDate();
+    let year = d.getFullYear();
+    return month + " " + day + ", " + year;
+  }
+</script>
+
+<form onsubmit="sendMessage(); return false;" method="post">
+  <!-- {% csrf_token %} -->
+  <div
+    class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"
+    id="messageFieldCont"
+  >
+    <input
+      class="mdl-textfield__input"
+      name="textmessage"
+      type="text"
+      id="messageField"
+    />
+    <label class="mdl-textfield__label" for="sample3">Text...</label>
+  </div>
+
+  <button
+    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+  >
+    Button
+  </button>
 </form>
+
 {% else %}
 <h1>Not Logged In</h1>
 <p>You are not logged in, please log in <a href="/login/">here</a></p>
 {% endif %}
 
-
+<!--  -->
 {% endblock %}
